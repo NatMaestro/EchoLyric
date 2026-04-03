@@ -33,7 +33,7 @@ export function ToastContainer() {
   }, [toasts, dispatch])
 
   return (
-    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-3">
+    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-100 flex w-[calc(100vw-2rem)] max-w-[420px] flex-col gap-3">
       <AnimatePresence>
         {toasts.map((toast) => {
           const Icon = icons[toast.type]
@@ -44,11 +44,11 @@ export function ToastContainer() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -20, scale: 0.9 }}
               className={cn(
-                'flex items-center gap-3 px-5 py-3 rounded-xl glass border backdrop-blur-xl shadow-xl min-w-[300px]',
+                'flex w-full items-center gap-3 px-4 py-3 rounded-xl glass border backdrop-blur-xl shadow-xl',
                 styles[toast.type]
               )}
             >
-              <Icon className="w-5 h-5 flex-shrink-0" />
+              <Icon className="w-5 h-5 shrink-0" />
               <span className="flex-1 text-sm font-medium">{toast.message}</span>
               <button
                 onClick={() => dispatch(removeToast(toast.id))}

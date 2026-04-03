@@ -1,6 +1,7 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
@@ -11,10 +12,12 @@ import {
   User,
   ChevronLeft,
   Music2,
+  Menu,
   LogIn,
   LogOut,
   Shield,
   UserPlus,
+  X,
 } from 'lucide-react'
 import { signOut, useSession } from 'next-auth/react'
 import { useAppDispatch, useAppSelector } from '@/lib/hooks'
@@ -37,19 +40,69 @@ export function Sidebar() {
   const collapsed = useAppSelector((state) => state.ui.sidebarCollapsed)
   const { data: session } = useSession()
 
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const update = () => setIsMobile(window.innerWidth < 768)
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
+
+  const asideWidth = isMobile ? 'w-[280px]' : collapsed ? 'w-[80px]' : 'w-[280px]'
+  const asideTransform = isMobile
+    ? collapsed
+      ? '-translate-x-full'
+      : 'translate-x-0'
+    : 'translate-x-0'
+
   return (
-    <motion.aside
-      initial={false}
-      animate={{ width: collapsed ? 80 : 280 }}
-      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-      className="fixed left-0 top-0 h-screen glass border-r border-border/50 z-50 flex flex-col"
-    >
+    <>
+      {isMobile && !collapsed && (
+        <div
+          className="fixed inset-0 bg-black/50 z-49"
+          role="button"
+          aria-label="Close navigation"
+          onClick={() => dispatch(toggleSidebar())}
+        />
+      )}
+
+      {isMobile && collapsed && (
+        <button
+          type="button"
+          className="fixed left-4 top-4 z-60 w-11 h-11 rounded-xl glass border border-border/50 flex items-center justify-center"
+          onClick={() => dispatch(toggleSidebar())}
+          aria-label="Open navigation"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+      )}
+
+      {isMobile && !collapsed && (
+        <button
+          type="button"
+          className="fixed left-4 top-4 z-60 w-11 h-11 rounded-xl glass border border-border/50 flex items-center justify-center"
+          onClick={() => dispatch(toggleSidebar())}
+          aria-label="Close navigation"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      )}
+
+      <motion.aside
+        initial={false}
+        className={cn(
+          'fixed left-0 top-0 h-screen glass border-r border-border/50 z-50 flex flex-col overflow-y-auto transition-transform duration-300 ease-out',
+          asideWidth,
+          asideTransform
+        )}
+      >
       {/* Logo */}
       <div className="flex items-center gap-3 p-6 border-b border-border/30">
         <motion.div
           whileHover={{ rotate: 360 }}
           transition={{ duration: 0.6 }}
-          className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center glow-sm"
+          className="w-10 h-10 rounded-xl bg-linear-to-br from-primary to-accent flex items-center justify-center glow-sm"
         >
           <Music2 className="w-5 h-5 text-primary-foreground" />
         </motion.div>
@@ -83,7 +136,7 @@ export function Sidebar() {
                     : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
                 )}
               >
-                <item.icon className={cn('w-5 h-5 flex-shrink-0', isActive && 'text-primary')} />
+                <item.icon className={cn('w-5 h-5 shrink-0', isActive && 'text-primary')} />
                 <AnimatePresence>
                   {!collapsed && (
                     <motion.span
@@ -118,7 +171,7 @@ export function Sidebar() {
                       : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
                   )}
                 >
-                  <Shield className="w-5 h-5 flex-shrink-0" />
+                  <Shield className="w-5 h-5 shrink-0" />
                   <AnimatePresence>
                     {!collapsed && (
                       <motion.span
@@ -141,7 +194,7 @@ export function Sidebar() {
               whileTap={{ scale: 0.98 }}
               className="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-200"
             >
-              <LogOut className="w-5 h-5 flex-shrink-0" />
+                <LogOut className="w-5 h-5 shrink-0" />
               <AnimatePresence>
                 {!collapsed && (
                   <motion.span
@@ -164,7 +217,7 @@ export function Sidebar() {
                 whileTap={{ scale: 0.98 }}
                 className="flex items-center gap-4 px-4 py-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-200"
               >
-                <LogIn className="w-5 h-5 flex-shrink-0" />
+                <LogIn className="w-5 h-5 shrink-0" />
                 <AnimatePresence>
                   {!collapsed && (
                     <motion.span
@@ -185,7 +238,7 @@ export function Sidebar() {
                 whileTap={{ scale: 0.98 }}
                 className="flex items-center gap-4 px-4 py-2 rounded-xl text-xs text-muted-foreground hover:text-primary transition-colors"
               >
-                <UserPlus className="w-5 h-5 flex-shrink-0" />
+                <UserPlus className="w-5 h-5 shrink-0" />
                 <AnimatePresence>
                   {!collapsed && (
                     <motion.span
@@ -251,5 +304,6 @@ export function Sidebar() {
         </motion.button>
       </div>
     </motion.aside>
+    </>
   )
 }
