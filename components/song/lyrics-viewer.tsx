@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Languages, FileQuestion } from 'lucide-react'
+import { Languages, FileQuestion, AlertTriangle, Plus } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '@/lib/hooks'
 import { toggleTranslation, setHighlightedLine } from '@/features/lyricsSlice'
 import { LyricsLine } from './lyrics-line'
@@ -9,6 +9,26 @@ import Link from 'next/link'
 
 interface LyricsViewerProps {
   songId: string
+}
+
+function lineLooksIncomplete(text: string): boolean {
+  const value = text.trim().toLowerCase()
+  if (!value) return true
+
+  // Common placeholders contributors use for unknown/missing lyric parts.
+  const markers = ['???', '…', '...', '[missing]', '[unknown]', '[inaudible]', '[unclear]', 'tbd']
+  if (markers.some((m) => value.includes(m))) return true
+
+  // Placeholder-like punctuation / blanks such as "____", "---", "... ...".
+  if (/^[_\-\.\s]{3,}$/.test(value)) return true
+
+  // Uncertain line fragments often end like "something ?" or "word??".
+  if (/[?]{1,}$/.test(value) && value.length <= 24) return true
+
+  // Very short bracketed notes, e.g. "[missing line]".
+  if (/^\[[^\]]{0,30}\]$/.test(value)) return true
+
+  return false
 }
 
 export function LyricsViewer({ songId }: LyricsViewerProps) {
@@ -42,9 +62,43 @@ export function LyricsViewer({ songId }: LyricsViewerProps) {
 
   const currentVersion = currentLyrics.versions.find(v => v.id === currentLyrics.currentVersion)
   const hasTranslation = currentVersion?.lines.some(line => line.translation)
+  const incompleteCount = currentVersion
+    ? currentVersion.lines.filter((line) => lineLooksIncomplete(line.text)).length
+    : 0
+  const hasIncompleteLyrics = incompleteCount > 0
 
   return (
     <div className="space-y-6">
+      {hasIncompleteLyrics && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-2xl mx-auto rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
+              <div>
+                <p className="font-medium text-amber-700 dark:text-amber-300">
+                  Some lines are still incomplete
+                </p>
+                <p className="text-sm text-amber-700/90 dark:text-amber-300/90">
+                  {incompleteCount} line{incompleteCount === 1 ? '' : 's'} need completion. Add what you know to help
+                  finish this song.
+                </p>
+              </div>
+            </div>
+            <Link
+              href={`/contribute?songId=${songId}`}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-sm font-medium text-amber-800 dark:text-amber-200 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Contribute missing lines
+            </Link>
+          </div>
+        </motion.div>
+      )}
+
       {/* Controls */}
       {hasTranslation && (
         <div className="flex items-center justify-center">

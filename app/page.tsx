@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { CheckCircle2, PenSquare, Send, Share2 } from 'lucide-react'
 import { SearchBar } from '@/components/search-bar'
 import { SongCard } from '@/components/song-card'
 import { useAppSelector } from '@/lib/hooks'
@@ -11,6 +12,32 @@ import { FeaturedCollections } from '@/components/home/featured-collections'
 
 export default function HomePage() {
   const { recentlyAdded } = useAppSelector((state) => state.songs)
+  const steps = [
+    {
+      icon: Send,
+      title: 'Contribute forgotten songs',
+      description:
+        'Submit the song details and any lyric lines you remember so the community can help recover the full lyrics.',
+    },
+    {
+      icon: PenSquare,
+      title: 'Community edits and improves',
+      description:
+        'Other listeners refine lines, fix mistakes, and add missing parts using their own knowledge.',
+    },
+    {
+      icon: CheckCircle2,
+      title: 'Vote and review for accuracy',
+      description:
+        'Contributions get reviewed and approved so only trusted lyric versions are published in the archive.',
+    },
+    {
+      icon: Share2,
+      title: 'Publish and share',
+      description:
+        'Approved lyrics go live for everyone to read, search, save, and share across generations.',
+    },
+  ]
 
   return (
     <div className="space-y-16">
@@ -29,7 +56,8 @@ export default function HomePage() {
             Song Lyrics
           </h1>
           <p className="text-xl text-muted-foreground text-pretty max-w-xl mx-auto">
-            A digital archive for finding and preserving lyrics—especially old and hard-to-find songs that deserve to be remembered.
+            Recover forgotten lyrics together: contribute songs you cannot fully remember, help edit lines you know,
+            and support accurate versions through community review.
           </p>
           
           <div className="pt-4">
@@ -39,6 +67,44 @@ export default function HomePage() {
 
         {/* Background Glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/5 blur-3xl -z-10" />
+      </section>
+
+      {/* How it Works */}
+      <section>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-6 text-center"
+        >
+          <h2 className="text-2xl md:text-3xl font-bold">How Echolyric Works</h2>
+          <p className="text-muted-foreground mt-2 max-w-2xl mx-auto text-pretty">
+            Built for songs people remember in pieces. The community rebuilds lyrics step by step, then reviews and
+            approves them before they become part of the public archive.
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
+          {steps.map((step, index) => {
+            const Icon = step.icon
+            return (
+              <motion.div
+                key={step.title}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.05 }}
+                className="rounded-2xl border border-border/50 glass p-5"
+              >
+                <div className="w-10 h-10 rounded-xl bg-primary/15 text-primary flex items-center justify-center mb-3">
+                  <Icon className="w-5 h-5" />
+                </div>
+                <h3 className="font-semibold leading-snug">{step.title}</h3>
+                <p className="text-sm text-muted-foreground mt-2 text-pretty">{step.description}</p>
+              </motion.div>
+            )
+          })}
+        </div>
       </section>
 
       {/* Trending Lyrics */}

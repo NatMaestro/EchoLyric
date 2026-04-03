@@ -7,6 +7,7 @@ import { FloatingActionButton } from '../ui/floating-action-button'
 import { ToastContainer } from '../ui/toast-container'
 import { useAppDispatch, useAppSelector } from '@/lib/hooks'
 import { setSidebarCollapsed } from '@/features/uiSlice'
+import { AdSlot } from '@/components/ads/ad-slot'
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
   const dispatch = useAppDispatch()
@@ -38,7 +39,27 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
         className="min-h-screen"
       >
         <div className="px-4 py-4 sm:px-8 sm:py-8 max-w-7xl mx-auto">
-          {children}
+          <div className="xl:grid xl:grid-cols-[minmax(0,1fr)_300px] xl:gap-8">
+            <div className="min-w-0">
+              {children}
+              <div className="mt-8 xl:hidden">
+                <AdSlot
+                  slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_MOBILE_INLINE}
+                  format="horizontal"
+                />
+              </div>
+            </div>
+
+            <aside className="hidden xl:block">
+              <div className="sticky top-6">
+                <AdSlot
+                  slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_DESKTOP_RAIL}
+                  format="vertical"
+                  className="min-h-[280px]"
+                />
+              </div>
+            </aside>
+          </div>
         </div>
       </motion.main>
       <FloatingActionButton />
